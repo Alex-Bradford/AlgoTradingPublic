@@ -4,4 +4,5 @@ from time import sleep
 for x in mylist:
     quote_page = 'https://www.marketindex.com.au/sites/default/files/historical-data/' + x + '.csv'
     webbrowser.open(quote_page)
+    #Wait 1 minute before next download so IP address doesn't get blocked #learnthroughpain
     sleep(60)
