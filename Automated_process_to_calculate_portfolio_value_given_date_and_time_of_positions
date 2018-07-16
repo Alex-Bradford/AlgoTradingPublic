@@ -1,3 +1,10 @@
+##END PROCESS:
+#1.Create all positions, and populate: name, no_of_shares, op_date, cl_date
+#2.Populate list of positions in portfolio.positions
+#3.Load 'position.share_prices' for all positions with loadPositionDate function
+#4.Calculate 'position.values' for all positions with calcPositionValue function
+#5.Combine all values of positions to get list of portfolio values with calcPortfolioValue function
+
 import pandas as pd
 from datetime import *
 
@@ -58,12 +65,14 @@ class Position:
 #Steps 1,2,3 with ability to load data
 position1 = Position('WBC', 100, date(2018,7,3), date(2018,7,10))
 position2 = Position('CBA', 100, date(2018,7,5), date(2018,7,12))
+#Hard coded some dates/prices for example, can read a csv.
 d = {'Date': ["03/07/2018","04/07/2018","05/07/2018","06/07/2018","07/07/2018","08/07/2018","09/07/2018","10/07/2018"], 'Price': [1,2,3,4,5,6,7,8]}
 df = pd.DataFrame(data=d)
 #convert column to datetime type
 df['Date'] = pd.to_datetime(df['Date'], dayfirst=True)
 position1.share_prices = df
 position1.share_prices
+#Hard coded some dates/prices for example, can read a csv.
 d = {'Date': ["05/07/2018","06/07/2018","07/07/2018","08/07/2018","09/07/2018","10/07/2018","11/07/2018","12/07/2018"], 'Price': [1,2,3,4,5,6,7,8]}
 df = pd.DataFrame(data=d)
 #conver column to datetime type
@@ -75,11 +84,3 @@ portfolio.positions = [position1, position2]
 portfolio.calcPositionValue()
 portfolio.calcPortfolioValue()
 portfolio.values
-#position2.values
-
-##END PROCESS:
-#1.Create all positions, and populate: name, no_of_shares, op_date, cl_date
-#2.Populate list of positions in portfolio.positions
-#3.Load 'position.share_prices' for all positions with loadPositionDate function
-#4.Calculate 'position.values' for all positions with calcPositionValue function
-#5.Combine all values of positions to get list of portfolio values with calcPortfolioValue function
