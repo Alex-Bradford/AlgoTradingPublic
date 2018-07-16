@@ -1,0 +1,85 @@
+import pandas as pd
+from datetime import *
+
+class Portfolio:
+  def __init__(self):
+    self.positions = []
+    self.values = []
+  
+  def loadPositionData():
+    path = r"E:\Users\Alex\Documents\temp\backtest\*.csv"
+    for fname in glob.glob(path):
+      ##take the date and price column and make a dataframe
+      #import data
+      data = pd.read_csv(fname)
+      #assign to dataframe
+      data_DF = pd.DataFrame(data)
+      #drop all columns except 'date' and 'price'
+      data_DF = data_DF[['Date', 'Close']]      
+      ##find the position object that relates to it
+      #store value of fname and take  the first 3 letters of it
+      str_for_pos_name = os.path.basename(fname)
+      str_for_pos_name = str_for_pos_name[:3]
+      ##put that dataframe into position.share_prices
+      for position in portfolio.positions:
+        if (position.name == str_for_pos_name):
+          position.share_prices  = data_DF
+  
+  def calcPositionValue(self):
+    for position in self.positions:   
+      #copy position.share_prices to position.values and change name of column
+      position.values = position.share_prices
+      position.values.rename(columns={'Price': 'Value'}, inplace=True)
+      #iterate through the dates in df
+      for index, row in position.values.iterrows():
+        if position.values.loc[index, "Date"] not in pd.date_range(start=position.op_date, end=position.cl_date, freq='D'):
+          position.values.drop([index])
+        else:
+          position.values.loc[index, "Value"] = position.values.loc[index, "Value"]*position.no_of_shares
+          
+  def calcPortfolioValue(self):
+    d = {'Date': [], 'Value': []}
+    df = pd.DataFrame(data=d)
+    self.values = df
+    for position in self.positions:
+      self.values = self.values.append(position.values, ignore_index=True)
+    self.values = self.values.groupby(by='Date', as_index=False).sum()
+    self.values = self.values.sort_values(by=['Date'], ascending=False)
+    
+class Position:
+  def __init__(self, name, no_of_shares, op_date, cl_date):
+    self.name = name
+    self.no_of_shares = no_of_shares
+    self.op_date = op_date
+    self.cl_date = cl_date
+    self.share_prices = []
+    self.values = []
+  
+#Steps 1,2,3 with ability to load data
+position1 = Position('WBC', 100, date(2018,7,3), date(2018,7,10))
+position2 = Position('CBA', 100, date(2018,7,5), date(2018,7,12))
+d = {'Date': ["03/07/2018","04/07/2018","05/07/2018","06/07/2018","07/07/2018","08/07/2018","09/07/2018","10/07/2018"], 'Price': [1,2,3,4,5,6,7,8]}
+df = pd.DataFrame(data=d)
+#convert column to datetime type
+df['Date'] = pd.to_datetime(df['Date'], dayfirst=True)
+position1.share_prices = df
+position1.share_prices
+d = {'Date': ["05/07/2018","06/07/2018","07/07/2018","08/07/2018","09/07/2018","10/07/2018","11/07/2018","12/07/2018"], 'Price': [1,2,3,4,5,6,7,8]}
+df = pd.DataFrame(data=d)
+#conver column to datetime type
+df['Date'] = pd.to_datetime(df['Date'], dayfirst=True)
+position2.share_prices = df
+position2.share_prices
+portfolio = Portfolio()
+portfolio.positions = [position1, position2]
+portfolio.calcPositionValue()
+portfolio.calcPortfolioValue()
+portfolio.values
+#position2.values
+
+##END PROCESS:
+#1.Create all positions, and populate: name, no_of_shares, op_date, cl_date
+#2.Populate list of positions in portfolio.positions
+#3.Load 'position.share_prices' for all positions with loadPositionDate function
+#4.Calculate 'position.values' for all positions with calcPositionValue function
+#5.Combine all values of positions to get list of portfolio values with calcPortfolioValue function

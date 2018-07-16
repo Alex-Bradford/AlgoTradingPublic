@@ -1,0 +1,42 @@
+# downloaded 5 years worth of historical price data for WPL on ASX
+# added 'Increased Today?' and populated values based on open/close for that day.
+# added target column 'Increase Tomorrow?' and populated based on next days 'Increased Today?'
+# deleted the last row as it did not have an 'increased tomorrow?'
+# added '5 day momentum' column and calculated ((todays price/price 5 days ago)-1) 
+# deleted the first 5 as they couldnt have a '5 day momentum' 
+# left the other data: open/close/volume/high/low
+
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.ensemble import RandomForestClassifier
+
+# load in data
+features = pd.read_csv(r'E:\Users\Alex\Documents\temp\WPL.AX2.csv')
+features = features[['5 Day Momentum', 'Increased Today?', 'Increased Tomorrow?']]
+# capture labels in np array and remove from dataframe
+labels = np.array(features['Increased Tomorrow?'])
+features = features[['5 Day Momentum', 'Increased Today?']]
+# store list of column names for later use, capture df as np array
+feature_list = list(features.columns)
+features = np.array(features)
+# split data into training/testing sets
+train_features, test_features, train_labels, test_labels = train_test_split(features, labels, test_size = 0.25)
+# Instantiate model with 1000 decision trees (use RandomForestClassifier for binary predictions, RandomForestClassifier for nonbinary predictions)
+rf = RandomForestClassifier(n_estimators = 1000)
+# Train the model on training data
+rf.fit(train_features, train_labels);
+# Compare the first 5 predictions against first 5 actuals:
+#print (rf.predict(test_features)[0:5])
+#print (test_labels[0:5])
+# Create confusion matrix
+cmatrix = pd.crosstab(test_labels, rf.predict(test_features), rownames=['Actual'], colnames=['Predicted'])
+# calculate total number of errors from confusion matrix
+errors = cmatrix.iloc[1, 0] + cmatrix.iloc[0, 1]
+# calculate total predictions from confusion matrix
+total = cmatrix.iloc[1, 0] + cmatrix.iloc[0, 1] + cmatrix.iloc[0, 0] + cmatrix.iloc[1, 1]
+# export to double check
+#df2 = pd.DataFrame({"Actual (test_labels)": test_labels, "predictions": rf.predict(test_features)})
+#df2.to_csv(r'E:\Users\Alex\Documents\temp\out.csv')
+print ("correct predictions:",(total-errors)/total)
+print ("feature importance:",list(zip(feature_list, rf.feature_importances_)))

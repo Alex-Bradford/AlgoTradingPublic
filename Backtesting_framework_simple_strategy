@@ -1,0 +1,87 @@
+import pandas as pd
+
+class Position:
+    def __init__(self, name):
+        self.name = name
+        self.holding = False
+        self.no_of_shares = 0
+        self.total_profit = 0.0
+        self.bought_price = 0.0
+        self.selling_price = 0.0
+        self.selling_date = 0
+    
+class Backtest:     
+    def run(position):
+        #import data
+        data = pd.read_csv(r'C:\temp\WPL.AX.csv')
+        #data = pd.read_csv(r'E:\Users\Alex\Documents\temp\WPL.AX.csv')
+        # assign to dataframe
+        data_DF = pd.DataFrame(data)
+        # drop 'Adj Close' and 'Volume' columns
+        data_DF = data_DF[['Date', 'Open', 'High', 'Low', 'Close']]
+        # define variable to store length of dataframe
+        length = len(data_DF.index)
+        brokerage = 20
+        capital = 10000
+        
+        #iterate through the dates in data_DF, skip first row
+        for index, row in data_DF.iloc[1:].iterrows():
+            # if not holding and yesterday's open was higher then close, BUY
+            if (position.holding == 0) and (data_DF.loc[index-1, "Open"] > data_DF.loc[index-1, "Close"]):
+                position.holding = True
+                position.bought_price = row.Open
+                position.no_of_shares = int(capital/position.bought_price)
+                position.selling_price = position.bought_price*1.0125
+                if ((index+5) > (length-1)):
+                    position.selling_date = data_DF.loc[length-1, "Date"]
+                else:
+                    position.selling_date = data_DF.loc[index+5, "Date"]
+                position.total_profit = position.total_profit-brokerage
+                #print ("--bought", row.Date)
+                #print ("position.holding = ",position.holding)
+                #print ("position.bought_price = ",position.bought_price)
+                #print ("position.no_of_shares = ",position.no_of_shares) 
+                #print ("position.selling_price = ",position.selling_price) 
+                #print ("position.selling_date = ",position.selling_date)
+                #print ("position.total_profit = ",position.total_profit)
+            # if holding and have held for five days, sell at open
+            if (position.holding == 1) and (row.Date == position.selling_date):
+                position.holding = False
+                position.total_profit = position.total_profit + ((row.Open*position.no_of_shares)-(position.bought_price*position.no_of_shares))-brokerage
+                #print ("--sold bc 5 days", row.Date)
+                #print ("position.holding = ",position.holding)
+                #print ("position.total_profit = ",position.total_profit)
+            #if holding and we've hit our selling price, sell at that selling price
+            if (position.holding == 1) and (row.High >= position.selling_price):
+                position.holding = False
+                position.total_profit = position.total_profit + ((position.selling_price*position.no_of_shares)-(position.bought_price*position.no_of_shares))-brokerage
+                #print ("--sold bc hit max price", row.Date)
+                #print ("position.holding = ",position.holding)
+                #print ("position.total_profit = ",position.total_profit)
+        return position.total_profit
+    def benchmark():
+        #import data
+        data = pd.read_csv(r'E:\Users\Alex\Documents\temp\WPL.AX.csv')
+        # assign to dataframe
+        data_DF = pd.DataFrame(data)
+        # drop 'Adj Close' and 'Volume' columns
+        data_DF = data_DF[['Date', 'Open', 'High', 'Low', 'Close']]
+        # define variable to store length of dataframe
+        length = len(data_DF.index)
+        brokerage = 20
+        capital = 10000
+        
+        # buy at first open
+        shares_bought = int(capital/data_DF.loc[0, "Open"])
+        buy_value = (data_DF.loc[0, "Open"]*shares_bought)
+        # sell at last close
+        sell_value = (data_DF.loc[length-1, "Close"]*shares_bought)
+        profit = sell_value - buy_value - (2*brokerage)
+        return profit
+    
+position = Position('WPL')
+result = Backtest.run(position)
+benchmark_result = Backtest.benchmark()
+print ("My strategy produced:",result)
+print ("Benchmark produced:",benchmark_result)
+print ("Alpha:",result-benchmark_result)

@@ -1,0 +1,7 @@
+import webbrowser
+from time import sleep
+#mylist =['A2M','AAD','ABC','ABP','AGL','AHG','ALL','ALQ','ALU','ALX','AMC','AMP','ANN','ANZ','AOG','APA','API','APO','APT','APX','ARB','ASL','AST','ASX','AWC','AZJ','BAL','BAP','BEN','BGA','BHP','BKL','BKW','BLD','BOQ','BPT','BRG','BSL','BWP','BXB','CAR','CBA','CCL','CCP','CGC','CGF','CHC','CIM','CLW','CMW','CNU','COH','CPU','CQR','CSL','CSR','CTD','CTX','CWN','CWY','CYB','DHG','DLX','DMP','DOW','DXS','ECX','EHE','EVN','FBU','FLT','FMG','FPH','FXJ','GEM','GMA','GMG','GNC','GOZ','GPT','GTY','GUD','GWA','GXL','GXY','HSO','HVN','IAG','IEL','IFL','IFN','IGO','ILU','ING','IOF','IPH','IPL','IRE','IVC','JBH','JHG','JHX','LLC','LNK','LYC','MFG','MGR','MIN','MMS','MND','MPL','MQG','MTS','MYO','MYX','NAB','NAN','NCM','NEC','NHF','NSR','NST','NUF','NVT','NWS','NXT','OML','ORA','ORE','ORG','ORI','OSH','OZL','PDL','PGH','PLS','PMV','PPT','PRY','PTM','QAN','QBE','QUB','REA','RHC','RIO','RMD','RRL','RSG','RWC','S32','SAR','SBM','SCG','SCP','SDA','SDF','SEK','SFR','SGM','SGP','SGR','SHL','SIG','SIQ','SKC','SKI','SOL','SPK','SRX','STO','SUL','SUN','SVW','SWM','SXL','SYD','SYR','TAH','TCL','TGR','TLS','TME','TNE','TPM','TWE','URW','VCX','VOC','VVR','WBC','WEB','WES','WHC','WOR','WOW','WPL','WSA','WTC','XRO']
+for x in mylist:
+    quote_page = 'https://www.marketindex.com.au/sites/default/files/historical-data/' + x + '.csv'
+    webbrowser.open(quote_page)
+    sleep(60)

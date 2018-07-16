@@ -1,0 +1,27 @@
+import requests
+import csv
+from datetime import datetime
+from bs4 import BeautifulSoup
+from time import sleep
+# for each of these stocks
+mylist = ['WPL','ORG','OSH','STO','CTX','SOL','WHC','WOR','BPT','NHC']
+for x in mylist:
+    # specify the url
+    quote_page = 'https://www.bloomberg.com/quote/' + x + ':AU'
+    # query the website and return the html to the variable ‘page’
+    page = requests.get(quote_page, verify=False)
+    # parse the html using beautiful soup and store in variable `soup`
+    soup = BeautifulSoup(page.text, 'html.parser')
+    # get the stock name
+    name_box = soup.find('span', attrs={'class':'companyId__87e50d5a'})
+    name = name_box.text
+    # get the stock price
+    price_box = soup.find('span', attrs={'class':'priceText__1853e8a5'})
+    price = price_box.text
+    # open a csv file with append, so old data will not be erased
+    with open(r'E:\Users\Alex\Documents\temp\data2.csv', 'a', newline='') as outfile:
+        writer = csv.writer(outfile)
+        the_time = datetime.now()
+        the_time = the_time.replace(second=0, microsecond=0)
+        writer.writerow([name, price, datetime.now().date(), the_time.time()])
+    sleep(2)

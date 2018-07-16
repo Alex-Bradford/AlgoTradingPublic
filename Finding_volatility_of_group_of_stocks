@@ -1,0 +1,41 @@
+import glob
+import os
+import pandas as pd
+
+# create variables to store daily volatilities, total volatilities and average
+current_volatility_pos = 0.0
+current_volatility_neg = 0.0
+total_volatility_pos = 0.0
+total_volatility_neg = 0.0
+average_volatility_pos = 0.0
+average_volatility_neg = 0.0
+# create variables to run through a group of csv's in folder
+path = r"E:\Users\Alex\Documents\temp\backtest\*.csv"
+columns = ['Ticker','Average Positive Volatility (%)', 'Average Negative Volatility (%)']
+daddyDF = pd.DataFrame(columns=columns)
+# iterate through files
+for fname in glob.glob(path):
+    # reset volatility variables
+    current_volatility_pos = current_volatility_neg = total_volatility_pos = total_volatility_neg = average_volatility_pos = average_volatility_neg = 0.0
+    # import data
+    data = pd.read_csv(fname)
+    # assign to dataframe
+    data_DF = pd.DataFrame(data)
+    # iterate through the dates in data_DF, skip first row
+    for index, row in data_DF.iloc[1:].iterrows():
+        current_volatility_pos = (data_DF.loc[index, "High"]-data_DF.loc[index, "Open"])/data_DF.loc[index, "Open"]
+        current_volatility_neg = (data_DF.loc[index, "Low"]-data_DF.loc[index, "Open"])/data_DF.loc[index, "Open"]
+        total_volatility_pos = total_volatility_pos + current_volatility_pos
+        total_volatility_neg = total_volatility_neg + current_volatility_neg
+    # store length of dataframe -1 to calculate average
+    length = len(data_DF.index)
+    average_volatility_pos = (total_volatility_pos/length)*100
+    average_volatility_neg = (total_volatility_neg/length)*100
+    d = {'Ticker': [os.path.basename(fname)], 'Average Positive Volatility (%)': [average_volatility_pos], 'Average Negative Volatility (%)': [average_volatility_neg]}
+    df = pd.DataFrame(data=d)
+    daddyDF = daddyDF.append(df)
+print("Average volatility across all:")
+print(daddyDF.mean(numeric_only=1))
+daddyDF = daddyDF[['Ticker','Average Positive Volatility (%)', 'Average Negative Volatility (%)']]
+daddyDF = daddyDF.reset_index(drop=True)
+daddyDF.sort_values(by=['Average Positive Volatility (%)'], ascending=False)
