@@ -9,7 +9,7 @@ class Player:
         self.handKnownOther = [None,None,None,None]
         
     def handKnownPretty(self, handKnown):
-        # call Player().handKnownPretty(playerA.handKnown[:]) to print a pretty version of the hand
+        # Call Player().handKnownPretty(playerA.handKnown[:]) to print a pretty version of the hand
         handKnownPretty = []
         handKnownPretty = handKnown
         for index, value in enumerate(handKnownPretty):
@@ -19,7 +19,7 @@ class Player:
         return x
     
     def handKnownLogic(self, handKnown):
-        # call Player().handKnownLogic(playerA.handKnown[:]) to print a logic version of the hand
+        # Call Player().handKnownLogic(playerA.handKnown[:]) to print a logic version of the hand
         handKnownPretty = []
         handKnownPretty = handKnown
         for index, value in enumerate(handKnownPretty):
@@ -29,32 +29,38 @@ class Player:
         return x
 
 class Game:
-    def initialState(self):
-            # INITIALISE GAME - GET THE DECK AND HANDS SETUP
-        global playerA
-        global playerB
-        global deck
-        global discardPile
-        global whosTurn
-        playerA = Player()
+    def initialState(self): 
+        # Initialise the game - get the deck and players setup
+        # Need to update these global variables:
+        global playerA, playerB, deck, discardPile, whosTurn
+
+        playerA = Player() # New player
         playerB = Player()
+        # The deck has been created like this because it's not 'square'...eg. cards 0-8 have (4), card 9 has (9), cards S,D,P have (3)
         deck = [0,0,0,0,1,1,1,1,2,2,2,2,3,3,3,3,4,4,4,4,5,5,5,5,6,6,6,6,7,7,7,7,8,8,8,8,9,9,9,9,9,9,9,9,9,'P','P','P','S','S','S','D','D','D']
         discardPile = '' 
-        whosTurn = "Player A"
+        whosTurn = "Player A" # Player A starts
         shuffle(deck)
+        # Define Player A attributes...
         playerA.name = 'Player A'
         playerA.hand = [deck.pop(0), deck.pop(0), deck.pop(0), deck.pop(0)]
         playerA.handKnown = [playerA.hand[0], None, None, playerA.hand[3]]
+        # Define Player B attributes...
         playerB.name = 'Player B'
         playerB.hand = [deck.pop(0), deck.pop(0), deck.pop(0), deck.pop(0)]
         playerB.handKnown = [playerB.hand[0], None, None, playerB.hand[3]]
         discardPile = deck.pop(0)
+        
+        # Replace the discardPile if it's a power card
         while (discardPile == 'P' or discardPile == 'S' or discardPile == 'D'):
             deck.append(discardPile)
             discardPile = deck.pop(0)
+        
         print "--Initial State"
         print "Player A hand =",Player().handKnownPretty(playerA.handKnown[:])
         print "Player B hand =",Player().handKnownPretty(playerB.handKnown[:])
+        
+        # Replace the 2 outside cards in each player's hand if they are power cards
         while (playerA.handKnown[0] == 'P' or playerA.handKnown[0] == 'S' or playerA.handKnown[0] == 'D') or (playerA.handKnown[3] == 'P' or playerA.handKnown[3] == 'S' or playerA.handKnown[3] == 'D'):
             for index, value in enumerate(playerA.hand):
                 if (index == 0 or index == 3) and (value == 'P' or value == 'S' or value == 'D'):
@@ -75,23 +81,25 @@ class Game:
         return
     
     def play(self):
-        print "--Game Begins: Player A starts"
-        global counter
-        global ratATatCat
-        global deck
-        counter = 0
+        # play the game - references the turn() and drawCard() functions
+        # Need to update these global variables:
+        global counter, ratATatCat, deck
+        
+        counter = 0 # Used to track turn numbers
         ratATatCat = False
         containsNumeric = False
+        
+        print "--Game Begins: Player A starts"
+        
+        #ratATatCat will be set to True in the turn function when a player thinks they can win
         while ratATatCat == False:
             Game().turn(whosTurn)
+        
+        # ratATatCat has been called
         print "--This is the last turn!"
         Game().turn(whosTurn) #each player gets another turn
-        #i = 0
-        #while i < 40:
-        #    Game().turn(whosTurn)
-        #    i = i + 1
         
-        #if either hand contains power cards, swap them out for first card on deck
+        # End of game - if either hand contains power cards, swap them out for first card on deck
         print "--Player A has the following hand:",playerA.hand[0],playerA.hand[1],playerA.hand[2],playerA.hand[3]
         print "--Player B has the following hand:",playerB.hand[0],playerB.hand[1],playerB.hand[2],playerB.hand[3]
         for index, value in enumerate(playerA.hand):
@@ -104,378 +112,189 @@ class Game:
                 containsNumeric = True
         if containsNumeric == True:
             print "--Players will now replace any power cards"
-            print "--Player A now has the following hand:",playerA.hand
-            print "--Player B now has the following hand:",playerB.hand        
+            print "--Player A now has the following hand:",playerA.hand[0],playerA.hand[1],playerA.hand[2],playerA.hand[3]
+            print "--Player B now has the following hand:",playerB.hand[0],playerB.hand[1],playerB.hand[2],playerB.hand[3]   
         
-        #sum the player's hands to calculate score
+        # End of game - sum the player's hands to calculate score and winner
         sumPlayerAHand = sum(playerA.hand)
         sumPlayerBHand = sum(playerB.hand)
         print "Player A has a score of:",sumPlayerAHand
         print "Player B has a score of:",sumPlayerBHand
         if sumPlayerAHand < sumPlayerBHand:
             print "Player A wins!"
-        elif sumPlayerBhand < sumPlayerAHand:
+        elif sumPlayerBHand < sumPlayerAHand:
             print "Player B wins!"
         else:
             print "It's a tie!"
         return
-        
     
     def turn(self, playerTurn):
-                global whosTurn #need to update the whosTurn variable
-                global discardPile #need to update the discardPile variable
-                global deck #need to update the deck variable
-                global counter #need to update counter variable
-                global ratATatCat #need to update ratATatCat
-                
-                #assign the object of player who's turn it is
-                if playerTurn == 'Player A':
-                    player = playerA
-                    otherPlayer = playerB
-                else:
-                    player = playerB
-                    otherPlayer = playerA
-                    
-                #print the turn number
-                if (playerTurn == 'Player A') and ratATatCat == 0:
-                    counter = counter + 1
-                    print "--Turn number:",counter
-                    
+        # The game contains many turns - keep having turns until somebody calls rat-a-tat-cat!
+        # Need to update these global variables:
+        global whosTurn, discardPile, deck, counter, ratATatCat, player, otherPlayer, position
 
-                #store position of highest known card
-                position = player.handKnown.index(max(player.handKnown))
+        drawCardUsed = False # Used when a player picks up a 'D'
+        # Assign the object of player who's turn it is
+        if playerTurn == 'Player A':
+            player = playerA
+            otherPlayer = playerB
+        else:
+            player = playerB
+            otherPlayer = playerA
+        # Print the turn number
+        if (playerTurn == 'Player A') and ratATatCat == 0:
+            counter = counter + 1
+            print "--Turn number:",counter
+        # Store position of highest known card
+        position = player.handKnown.index(max(player.handKnown))
 
-                #drawing from the discard pile if it's less than 5 and the player has unknown cards
-                if (discardPile < 5 and None in player.handKnown):
-                    print player.name,"draws",discardPile,"from the discard pile and replaces one of their unknown cards"
-                    positionHolder = player.handKnown.index(None)
-                    player.hand[positionHolder], discardPile = discardPile, player.hand[positionHolder]
-                    player.handKnown[positionHolder] = player.hand[positionHolder]
-                    print player.name,"discards the unknown card,",discardPile
-                    print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                    
-                #drawing from the discard pile if it's less than highest
-                elif (discardPile < 5 and None not in player.handKnown and discardPile < player.hand[position]):
-                    print player.name,"draws",discardPile,"from the discard pile and replaces",player.hand[position]
-                    if (player.hand[position] == 'D') or (player.hand[position] == 'P') or (player.hand[position] == 'S'):
-                        otherPlayer.handKnownOther[position] = 5
-                        player.hand[position], discardPile = discardPile, player.hand[position]
-                        player.handKnown[position] = player.hand[position]
-                        print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                    else:
-                        otherPlayer.handKnownOther[position] = player.hand[position] - 1
-                        player.hand[position], discardPile = discardPile, player.hand[position]
-                        player.handKnown[position] = player.hand[position]
-                        print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
+        # Drawing from the discard pile if it's less than 5 and the player has unknown cards
+        if (discardPile < 5 and None in player.handKnown):
+            print player.name,"draws",discardPile,"from the discard pile and replaces one of their unknown cards"
+            positionHolder = player.handKnown.index(None)
+            player.hand[positionHolder], discardPile = discardPile, player.hand[positionHolder]
+            player.handKnown[positionHolder] = player.hand[positionHolder]
+            print player.name,"discards the unknown card,",discardPile
+            print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
 
-                #else, draw a card
-                else:
-                    drawCard = deck.pop(0)
-                    print player.name,"draws",drawCard
-                    
-                    #if the card is less than 5 and the player has unknown cards:
-                    if (drawCard < 5 and None in player.handKnown):
-                        print player.name,"replaces one of their unknown cards"
-                        positionHolder = player.handKnown.index(None)
-                        player.hand[positionHolder], drawCard = drawCard, player.hand[positionHolder]
-                        player.handKnown[positionHolder] = player.hand[positionHolder]
-                        print player.name,"discards the unknown card,",drawCard
-                        discardPile = drawCard
-                        print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                    
-                    elif (drawCard < player.hand[position] and drawCard != 'P' and drawCard != 'S' and drawCard != 'D'):
-                        print player.name,"replaces",player.hand[position],"for",drawCard
-                        print player.name,"discards",player.hand[position]
-                        if (player.hand[position] == 'D') or (player.hand[position] == 'P') or (player.hand[position] == 'S'):
-                            otherPlayer.handKnownOther[position] = 5
-                        else:
-                            otherPlayer.handKnownOther[position] = player.hand[position] - 1
-                        discardPile = player.hand[position]
-                        player.hand[position] = drawCard
-                        player.handKnown[position] = player.hand[position]
-                        print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                    
-                    #if the card is a 'P':
-                    elif drawCard == 'P':
-                        if player.handKnown[1] == None:
-                            player.handKnown[1] = player.hand[1]
-                            print player.name,"peeks at their 2nd card"
-                            print player.name,"discards",drawCard
-                            print player.name,"hand =",Player().handKnownPretty(player.handKnown[:]) 
-                        elif (player.handKnown[1] != None) and (player.handKnown[2] == None):
-                            player.handKnown[2] = player.hand[2]
-                            print player.name,"peeks at their 3rd card"
-                            print player.name,"discards",drawCard
-                            print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                        else:
-                            print player.name,"has no more cards to peek at"
-                            print player.name,"discards",drawCard
-                            print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                   
-                    #if the card is an 'S':
-                    elif drawCard == 'S':
-                        #each player tracks what they know about the other players hand. If they know the other player has a card 
-                        #which is less than their biggest card, they will swap it. Else, they will do nothing.
-                        if min(Player().handKnownLogic(player.handKnownOther[:])) < max(player.handKnown):
-                            positionOfMin = Player().handKnownLogic(player.handKnownOther[:]).index(min(Player().handKnownLogic(player.handKnownOther[:])))
-                            positionOfMax = player.handKnown.index(max(player.handKnown))
-                            print player.name,"swaps",player.hand[positionOfMax],"for",otherPlayer.name + "'s card"
-                            player.handKnownOther[positionOfMin] = player.hand[positionOfMax]
-                            otherPlayer.handKnownOther[positionOfMax] = otherPlayer.hand[positionOfMin]
-                            otherPlayer.hand[positionOfMin], player.hand[positionOfMax] = player.hand[positionOfMax], otherPlayer.hand[positionOfMin]
-                            player.handKnown[positionOfMax] = player.hand[positionOfMax]
-                            otherPlayer.handKnown[positionOfMin] = otherPlayer.hand[positionOfMin]
-                            print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                            print otherPlayer.name,"hand =",Player().handKnownPretty(otherPlayer.handKnown[:])
-                        elif (min(Player().handKnownLogic(player.handKnownOther[:])) >= max(player.handKnown)) and (None in player.handKnown):
-                            positionHolder = player.handKnown.index(None)
-                            print player.name,"swaps their position 1 card for their position",positionHolder + 1,"card and discards",drawCard
-                            player.hand[0], player.hand[positionHolder] = player.hand[positionHolder], player.hand[0]
-                            player.handKnown[positionHolder] = player.hand[positionHolder]
-                            player.handKnown[0] = player.hand[0]
-                            discardPile = drawCard
-                            print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                        else:
-                            print player.name,"discards",drawCard
-                            discardPile = drawCard  
-                    
-                    #if the card is a 'D':
-                    elif drawCard == 'D':
-                        drawCard = deck.pop(0)
-                        print player.name,"draws another card,",drawCard
-                        if drawCard < player.hand[position]:
-                            print player.name,"replaces",player.hand[position],"for",drawCard
-                            print player.name,"discards",player.hand[position]
-                            if (player.hand[position] == 'D') or (player.hand[position] == 'P') or (player.hand[position] == 'S'):
-                                otherPlayer.handKnownOther[position] = 5
-                            else:
-                                otherPlayer.handKnownOther[position] = player.hand[position] - 1
-                            discardPile = player.hand[position]
-                            player.hand[position] = drawCard
-                            player.handKnown[position] = player.hand[position]
-                            print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                        elif drawCard == 'P':
-                            if player.handKnown[1] == None:
-                                player.handKnown[1] = player.hand[1]
-                                print player.name,"peeks at their 2nd card"
-                                print player.name,"discards",drawCard
-                                print player.name,"hand =",Player().handKnownPretty(player.handKnown[:]) 
-                            elif (player.handKnown[1] != None) and (player.handKnown[2] == None):
-                                player.handKnown[2] = player.hand[2]
-                                print player.name,"peeks at their 3rd card"
-                                print player.name,"discards",drawCard
-                                print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                            else:
-                                print player.name,"has no more cards to peek at"
-                                print player.name,"discards",drawCard
-                                print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                        elif drawCard == 'S':
-                            #each player tracks what they know about the other players hand. If they know the other player has a card 
-                            #which is less than their biggest card, they will swap it. Else, they will do nothing.
-                            if min(Player().handKnownLogic(player.handKnownOther[:])) < max(player.handKnown):
-                                positionOfMin = Player().handKnownLogic(player.handKnownOther[:]).index(min(Player().handKnownLogic(player.handKnownOther[:])))
-                                positionOfMax = player.handKnown.index(max(player.handKnown))
-                                print player.name,"swaps",player.hand[positionOfMax],"for",otherPlayer.name + "'s card"
-                                player.handKnownOther[positionOfMin] = player.hand[positionOfMax]
-                                otherPlayer.handKnownOther[positionOfMax] = otherPlayer.hand[positionOfMin]
-                                otherPlayer.hand[positionOfMin], player.hand[positionOfMax] = player.hand[positionOfMax], otherPlayer.hand[positionOfMin]
-                                player.handKnown[positionOfMax] = player.hand[positionOfMax]
-                                otherPlayer.handKnown[positionOfMin] = otherPlayer.hand[positionOfMin]
-                                print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                                print otherPlayer.name,"hand =",Player().handKnownPretty(otherPlayer.handKnown[:])
-                            elif (min(Player().handKnownLogic(player.handKnownOther[:])) >= max(player.handKnown)) and (None in player.handKnown):
-                                positionHolder = player.handKnown.index(None)
-                                print player.name,"swaps their position 1 card for their position",positionHolder + 1,"card and discards",drawCard
-                                player.hand[0], player.hand[positionHolder] = player.hand[positionHolder], player.hand[0]
-                                player.handKnown[positionHolder] = player.hand[positionHolder]
-                                player.handKnown[0] = player.hand[0]
-                                discardPile = drawCard
-                            else:
-                                print player.name,"discards",drawCard
-                                discardPile = drawCard  
-                        elif drawCard =='D':
-                            drawCard = deck.pop(0)
-                            print player.name,"draws another card,",drawCard
-                            if drawCard < player.hand[position]:
-                                print player.name,"replaces",player.hand[position],"for",drawCard
-                                print player.name,"discards",player.hand[position]
-                                if (player.hand[position] == 'D') or (player.hand[position] == 'P') or (player.hand[position] == 'S'):
-                                    otherPlayer.handKnownOther[position] = 5
-                                else:
-                                    otherPlayer.handKnownOther[position] = player.hand[position] - 1
-                                discardPile = player.hand[position]
-                                player.hand[position] = drawCard
-                                player.handKnown[position] = player.hand[position]
-                                print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                            elif drawCard == 'P':
-                                if player.handKnown[1] == None:
-                                    player.handKnown[1] = player.hand[1]
-                                    print player.name,"peeks at their 2nd card"
-                                    print player.name,"discards",drawCard
-                                    print player.name,"hand =",Player().handKnownPretty(player.handKnown[:]) 
-                                elif (player.handKnown[1] != None) and (player.handKnown[2] == None):
-                                    player.handKnown[2] = player.hand[2]
-                                    print player.name,"peeks at their 3rd card"
-                                    print player.name,"discards",drawCard
-                                    print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                                else:
-                                    print player.name,"has no more cards to peek at"
-                                    print player.name,"discards",drawCard
-                                    print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                            elif drawCard == 'S':
-                                #each player tracks what they know about the other players hand. If they know the other player has a card 
-                                #which is less than their biggest card, they will swap it. Else, they will do nothing.
-                                if min(Player().handKnownLogic(player.handKnownOther[:])) < max(player.handKnown):
-                                    positionOfMin = Player().handKnownLogic(player.handKnownOther[:]).index(min(Player().handKnownLogic(player.handKnownOther[:])))
-                                    positionOfMax = player.handKnown.index(max(player.handKnown))
-                                    print player.name,"swaps",player.hand[positionOfMax],"for",otherPlayer.name + "'s card"
-                                    player.handKnownOther[positionOfMin] = player.hand[positionOfMax]
-                                    otherPlayer.handKnownOther[positionOfMax] = otherPlayer.hand[positionOfMin]
-                                    otherPlayer.hand[positionOfMin], player.hand[positionOfMax] = player.hand[positionOfMax], otherPlayer.hand[positionOfMin]
-                                    player.handKnown[positionOfMax] = player.hand[positionOfMax]
-                                    otherPlayer.handKnown[positionOfMin] = otherPlayer.hand[positionOfMin]
-                                    print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                                    print otherPlayer.name,"hand =",Player().handKnownPretty(otherPlayer.handKnown[:])
-                                elif (min(Player().handKnownLogic(player.handKnownOther[:])) >= max(player.handKnown)) and (None in player.handKnown):
-                                    positionHolder = player.handKnown.index(None)
-                                    print player.name,"swaps their position 1 card for their position",positionHolder + 1,"card and discards",drawCard
-                                    player.hand[0], player.hand[positionHolder] = player.hand[positionHolder], player.hand[0]
-                                    player.handKnown[positionHolder] = player.hand[positionHolder]
-                                    player.handKnown[0] = player.hand[0]
-                                    discardPile = drawCard
-                                else:
-                                    print player.name,"discards",drawCard
-                                    discardPile = drawCard  
-                            else:
-                                print player.name,"discards",drawCard
-                                drawCard = deck.pop(0)
-                                print player.name,"draws another card,",drawCard
-                                if drawCard < player.hand[position]:
-                                    print player.name,"replaces",player.hand[position],"for",drawCard
-                                    print player.name,"discards",player.hand[position]
-                                    if (player.hand[position] == 'D') or (player.hand[position] == 'P') or (player.hand[position] == 'S'):
-                                        otherPlayer.handKnownOther[position] = 5
-                                    else:
-                                        otherPlayer.handKnownOther[position] = player.hand[position] - 1
-                                    discardPile = player.hand[position]
-                                    player.hand[position] = drawCard
-                                    player.handKnown[position] = player.hand[position]
-                                    print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                                elif drawCard == 'P':
-                                    if player.handKnown[1] == None:
-                                        player.handKnown[1] = player.hand[1]
-                                        print player.name,"peeks at their 2nd card"
-                                        print player.name,"discards",drawCard
-                                        print player.name,"hand =",Player().handKnownPretty(player.handKnown[:]) 
-                                    elif (player.handKnown[1] != None) and (player.handKnown[2] == None):
-                                        player.handKnown[2] = player.hand[2]
-                                        print player.name,"peeks at their 3rd card"
-                                        print player.name,"discards",drawCard
-                                        print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                                    else:
-                                        print player.name,"has no more cards to peek at"
-                                        print player.name,"discards",drawCard
-                                        print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                                elif drawCard == 'S':
-                                    #each player tracks what they know about the other players hand. If they know the other player has a card 
-                                    #which is less than their biggest card, they will swap it. Else, they will do nothing.
-                                    if min(Player().handKnownLogic(player.handKnownOther[:])) < max(player.handKnown):
-                                        positionOfMin = Player().handKnownLogic(player.handKnownOther[:]).index(min(Player().handKnownLogic(player.handKnownOther[:])))
-                                        positionOfMax = player.handKnown.index(max(player.handKnown))
-                                        print player.name,"swaps",player.hand[positionOfMax],"for",otherPlayer.name + "'s card"
-                                        player.handKnownOther[positionOfMin] = player.hand[positionOfMax]
-                                        otherPlayer.handKnownOther[positionOfMax] = otherPlayer.hand[positionOfMin]
-                                        otherPlayer.hand[positionOfMin], player.hand[positionOfMax] = player.hand[positionOfMax], otherPlayer.hand[positionOfMin]
-                                        player.handKnown[positionOfMax] = player.hand[positionOfMax]
-                                        otherPlayer.handKnown[positionOfMin] = otherPlayer.hand[positionOfMin]
-                                        print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                                        print otherPlayer.name,"hand =",Player().handKnownPretty(otherPlayer.handKnown[:])
-                                    elif (min(Player().handKnownLogic(player.handKnownOther[:])) >= max(player.handKnown)) and (None in player.handKnown):
-                                        positionHolder = player.handKnown.index(None)
-                                        print player.name,"swaps their position 1 card for their position",positionHolder + 1,"card and discards",drawCard
-                                        player.hand[0], player.hand[positionHolder] = player.hand[positionHolder], player.hand[0]
-                                        player.handKnown[positionHolder] = player.hand[positionHolder]
-                                        player.handKnown[0] = player.hand[0]
-                                        discardPile = drawCard
-                                    else:
-                                        print player.name,"discards",drawCard
-                                        discardPile = drawCard  
-                                else:
-                                    print player.name,"discards",drawCard,"and D"
-                                    discardPile = 'D'
-                        else:
-                            print player.name,"discards",drawCard
-                            drawCard = deck.pop(0)
-                            print player.name,"draws another card,",drawCard
-                            if drawCard < player.hand[position]:
-                                print player.name,"replaces",player.hand[position],"for",drawCard
-                                print player.name,"discards",player.hand[position]
-                                if (player.hand[position] == 'D') or (player.hand[position] == 'P') or (player.hand[position] == 'S'):
-                                    otherPlayer.handKnownOther[position] = 5
-                                else:
-                                    otherPlayer.handKnownOther[position] = player.hand[position] - 1
-                                discardPile = player.hand[position]
-                                player.hand[position] = drawCard
-                                player.handKnown[position] = player.hand[position]
-                                print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                            elif drawCard == 'P':
-                                if player.handKnown[1] == None:
-                                    player.handKnown[1] = player.hand[1]
-                                    print player.name,"peeks at their 2nd card"
-                                    print player.name,"discards",drawCard
-                                    print player.name,"hand =",Player().handKnownPretty(player.handKnown[:]) 
-                                elif (player.handKnown[1] != None) and (player.handKnown[2] == None):
-                                    player.handKnown[2] = player.hand[2]
-                                    print player.name,"peeks at their 3rd card"
-                                    print player.name,"discards",drawCard
-                                    print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                                else:
-                                    print player.name,"has no more cards to peek at"
-                                    print player.name,"discards",drawCard
-                                    print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                            elif drawCard == 'S':
-                                #each player tracks what they know about the other players hand. If they know the other player has a card 
-                                #which is less than their biggest card, they will swap it. Else, they will do nothing.
-                                if min(Player().handKnownLogic(player.handKnownOther[:])) < max(player.handKnown):
-                                    positionOfMin = Player().handKnownLogic(player.handKnownOther[:]).index(min(Player().handKnownLogic(player.handKnownOther[:])))
-                                    positionOfMax = player.handKnown.index(max(player.handKnown))
-                                    print player.name,"swaps",player.hand[positionOfMax],"for",otherPlayer.name + "'s card"
-                                    player.handKnownOther[positionOfMin] = player.hand[positionOfMax]
-                                    otherPlayer.handKnownOther[positionOfMax] = otherPlayer.hand[positionOfMin]
-                                    otherPlayer.hand[positionOfMin], player.hand[positionOfMax] = player.hand[positionOfMax], otherPlayer.hand[positionOfMin]
-                                    player.handKnown[positionOfMax] = player.hand[positionOfMax]
-                                    otherPlayer.handKnown[positionOfMin] = otherPlayer.hand[positionOfMin]
-                                    print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
-                                    print otherPlayer.name,"hand =",Player().handKnownPretty(otherPlayer.handKnown[:])
-                                elif (min(Player().handKnownLogic(player.handKnownOther[:])) >= max(player.handKnown)) and (None in player.handKnown):
-                                    positionHolder = player.handKnown.index(None)
-                                    print player.name,"swaps their position 1 card for their position",positionHolder + 1,"card and discards",drawCard
-                                    player.hand[0], player.hand[positionHolder] = player.hand[positionHolder], player.hand[0]
-                                    player.handKnown[positionHolder] = player.hand[positionHolder]
-                                    player.handKnown[0] = player.hand[0]
-                                    discardPile = drawCard
-                                else:
-                                    print player.name,"discards",drawCard
-                                    discardPile = drawCard  
-                            else:
-                                print player.name,"discards",drawCard,"and D"
-                                discardPile = 'D'           
-                    else:
-                        print player.name,"discards",drawCard
-                        discardPile = drawCard
-                
-                #should the player call ratATatCat?
-                if sum(Player().handKnownLogic(player.handKnown[:])) < 7 and ratATatCat == False:
-                    print player.name,"calls rat-a-tat-cat!"
-                    ratATatCat = True
-                    
-                #update whosTurn at the end of the turn
-                if playerTurn == "Player A":
-                    whosTurn = "Player B"
-                elif playerTurn == "Player B":
-                    whosTurn = "Player A"
-                return
+        # Drawing from the discard pile if it's less than highest
+        elif (discardPile < 5 and None not in player.handKnown and discardPile < player.hand[position]):
+            print player.name,"draws",discardPile,"from the discard pile and replaces",player.hand[position]
+            if (player.hand[position] == 'D') or (player.hand[position] == 'P') or (player.hand[position] == 'S'):
+                otherPlayer.handKnownOther[position] = 5
+                player.hand[position], discardPile = discardPile, player.hand[position]
+                player.handKnown[position] = player.hand[position]
+                print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
+            else:
+                otherPlayer.handKnownOther[position] = player.hand[position] - 1
+                player.hand[position], discardPile = discardPile, player.hand[position]
+                player.handKnown[position] = player.hand[position]
+                print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
 
-game = Game()
-game.initialState()
-game.play()
+        # If discardPile is no good (else), draw a card
+        else:
+            Game().drawCard()
+
+        # Should the player call ratATatCat?
+        # If the player ever has less than 6, call it
+        if (sum(Player().handKnownLogic(player.handKnown[:])) < 7) and (ratATatCat == False):
+            print player.name,"calls rat-a-tat-cat!"
+            ratATatCat = True
+        # If the player ever has less than 14 in the 1st round, call it
+        elif (sum(Player().handKnownLogic(player.handKnown[:])) < 14) and (ratATatCat == False) and (counter == 1):
+            print player.name,"calls rat-a-tat-cat!"
+            ratATatCat = True
+        # If the player ever has less than 11 in the 2nd round, call it
+        elif (sum(Player().handKnownLogic(player.handKnown[:])) < 11) and (ratATatCat == False) and (counter == 2):
+            print player.name,"calls rat-a-tat-cat!"
+            ratATatCat = True
+        # If the player ever has less than 9 in the 3rd round, call it
+        elif (sum(Player().handKnownLogic(player.handKnown[:])) < 9) and (ratATatCat == False) and (counter == 3):
+            print player.name,"calls rat-a-tat-cat!"
+            ratATatCat = True
+        # If the player ever has less than 8 in the 4th round, call it
+        elif (sum(Player().handKnownLogic(player.handKnown[:])) < 8) and (ratATatCat == False) and (counter == 4):
+            print player.name,"calls rat-a-tat-cat!"
+            ratATatCat = True
+
+        # Update whosTurn at the end of the turn
+        if playerTurn == "Player A":
+            whosTurn = "Player B"
+        elif playerTurn == "Player B":
+            whosTurn = "Player A"
+        return
+    
+    def drawCard(self):
+        # A function for drawing a card is specified to avoid repeated code when a 'D' is picked up
+        # Need to update these variables:
+        global drawCard, deck, drawCardUsed
+        
+        # Player picks up a card
+        drawCard = deck.pop(0)
+        print player.name,"draws",drawCard
+
+        # If the card is less than 5 and the player has unknown cards, take it:
+        if (drawCard < 5 and None in player.handKnown):
+            print player.name,"replaces one of their unknown cards"
+            positionHolder = player.handKnown.index(None)
+            player.hand[positionHolder], drawCard = drawCard, player.hand[positionHolder]
+            player.handKnown[positionHolder] = player.hand[positionHolder]
+            print player.name,"discards the unknown card,",drawCard
+            discardPile = drawCard
+            drawCardUsed = True
+            print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
+
+        # If the card is less than the player's highest card and not a power card, take it:
+        elif (drawCard < player.hand[position] and drawCard != 'P' and drawCard != 'S' and drawCard != 'D'):
+            print player.name,"replaces",player.hand[position],"for",drawCard
+            print player.name,"discards",player.hand[position]
+            # Different information is given to the other player if a number is discarded or a power card is discarded
+            if (player.hand[position] == 'D') or (player.hand[position] == 'P') or (player.hand[position] == 'S'):
+                otherPlayer.handKnownOther[position] = 5
+            else:
+                otherPlayer.handKnownOther[position] = player.hand[position] - 1
+            discardPile = player.hand[position]
+            player.hand[position] = drawCard
+            player.handKnown[position] = player.hand[position]
+            print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
+            drawCardUsed = True
+            
+        # If the card is a 'P':
+        elif drawCard == 'P':
+            if player.handKnown[1] == None:
+                player.handKnown[1] = player.hand[1]
+                print player.name,"peeks at their 2nd card"
+                print player.name,"discards",drawCard
+                print player.name,"hand =",Player().handKnownPretty(player.handKnown[:]) 
+            elif (player.handKnown[1] != None) and (player.handKnown[2] == None):
+                player.handKnown[2] = player.hand[2]
+                print player.name,"peeks at their 3rd card"
+                print player.name,"discards",drawCard
+                print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
+            else:
+                print player.name,"has no more cards to peek at"
+                print player.name,"discards",drawCard
+                print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
+
+        #if the card is an 'S':
+        elif drawCard == 'S':
+            # Each player tracks what they know about the other players hand, from the cards they each get rid of. If a player picks up an 'S' and they know the other player has a card which is less than their biggest card, they will swap it. If they have some unknown cards, they will swap them to see what they are. Else, they will do nothing. 
+            if min(Player().handKnownLogic(player.handKnownOther[:])) < max(player.handKnown):
+                positionOfMin = Player().handKnownLogic(player.handKnownOther[:]).index(min(Player().handKnownLogic(player.handKnownOther[:])))
+                positionOfMax = player.handKnown.index(max(player.handKnown))
+                print player.name,"swaps",player.hand[positionOfMax],"for",otherPlayer.name + "'s card"
+                player.handKnownOther[positionOfMin] = player.hand[positionOfMax]
+                otherPlayer.handKnownOther[positionOfMax] = otherPlayer.hand[positionOfMin]
+                otherPlayer.hand[positionOfMin], player.hand[positionOfMax] = player.hand[positionOfMax], otherPlayer.hand[positionOfMin]
+                player.handKnown[positionOfMax] = player.hand[positionOfMax]
+                otherPlayer.handKnown[positionOfMin] = otherPlayer.hand[positionOfMin]
+                print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
+                print otherPlayer.name,"hand =",Player().handKnownPretty(otherPlayer.handKnown[:])
+            elif (min(Player().handKnownLogic(player.handKnownOther[:])) >= max(player.handKnown)) and (None in player.handKnown):
+                positionHolder = player.handKnown.index(None)
+                print player.name,"swaps their position 1 card for their position",positionHolder + 1,"card and discards",drawCard
+                player.hand[0], player.hand[positionHolder] = player.hand[positionHolder], player.hand[0]
+                player.handKnown[positionHolder] = player.hand[positionHolder]
+                player.handKnown[0] = player.hand[0]
+                discardPile = drawCard
+                print player.name,"hand =",Player().handKnownPretty(player.handKnown[:])
+            else:
+                print player.name,"discards",drawCard
+                discardPile = drawCard
+        
+        # If the card is a 'D':
+        elif drawCard == 'D':
+            drawCardUsed = False
+            print player.name,"draws another card"
+            Game().drawCard()
+            if (drawCardUsed != True):
+                Game().drawCard()
+        
+        # Else discard it (If the card can't be used and is not a power card)
+        else:
+            print player.name,"discards",drawCard
+            discardPile = drawCard
+
+game = Game()       # New instance of a game
+game.initialState() # Call the initital state
+game.play()         # Play the game
